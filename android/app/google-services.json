@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "374274231189",
+    "firebase_url": "https://kasku-f7c18-default-rtdb.firebaseio.com",
+    "project_id": "kasku-f7c18",
+    "storage_bucket": "kasku-f7c18.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:374274231189:android:7dab087f6192839445449c",
+        "android_client_info": {
+          "package_name": "com.example.kasku_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATJ9wE7dT_ewSRUWGerfnvrUqmrygA4Lw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
