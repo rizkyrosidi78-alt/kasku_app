@@ -13,7 +13,20 @@
           "package_name": "com.example.kasku_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "374274231189-1jhigesbctmp22nl4co4c69mk475njob.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.kasku_app",
+            "certificate_hash": "831102dee60ae5ee17bd45c8eda98f05a62a4e96"
+          }
+        },
+        {
+          "client_id": "374274231189-f32mobcdst14ns405113ghji7spquuj0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyATJ9wE7dT_ewSRUWGerfnvrUqmrygA4Lw"
@@ -21,7 +34,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "374274231189-f32mobcdst14ns405113ghji7spquuj0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "374274231189-vu0fbkh0usqg8eahu7vec5tn86u16pmi.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.kaskuApp"
+              }
+            }
+          ]
         }
       }
     }

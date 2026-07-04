@@ -6,7 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomePage extends StatefulWidget {
-  // Dibuat opsional agar tidak error saat dipanggil dari MainNavigation
   final List<Map<String, dynamic>>? transaksi;
   const HomePage({super.key, this.transaksi});
 
@@ -63,6 +62,16 @@ class _HomePageState extends State<HomePage> {
     return "${months[now.month - 1]} ${now.year}";
   }
 
+  // Helper membaca tipe tanggal dari Firebase (Sama seperti di statistic_page)
+  DateTime? _parseDate(dynamic dateData) {
+    if (dateData == null) return null;
+    if (dateData is Timestamp) return dateData.toDate();
+    if (dateData is String) {
+      try { return DateTime.parse(dateData); } catch (e) { return null; }
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,15 +95,18 @@ class _HomePageState extends State<HomePage> {
                     return Center(child: Text("Terjadi kesalahan sistem", style: GoogleFonts.poppins()));
                   }
 
-                  // --- KALKULASI SALDO OTOMATIS DARI FIREBASE ---
-                  double totalPemasukan = 0;
-                  double totalPengeluaran = 0;
+                  // --- KALKULASI SALDO & ARUS KAS BULAN INI ---
+                  double totalSaldo = 0; // Total uang keseluruhan (All-Time)
+                  double totalPemasukanBulanIni = 0; // Khusus bulan ini
+                  double totalPengeluaranBulanIni = 0; // Khusus bulan ini
                   
+                  DateTime now = DateTime.now();
                   List<QueryDocumentSnapshot> docs = snapshot.data?.docs ?? [];
 
                   for (var doc in docs) {
                     Map<String, dynamic> item = doc.data() as Map<String, dynamic>;
-                    // Membaca nominal dengan aman dari database
+                    
+                    // Membaca nominal dengan aman
                     double nominal = 0;
                     if (item['nominal'] is int) {
                       nominal = (item['nominal'] as int).toDouble();
@@ -102,14 +114,24 @@ class _HomePageState extends State<HomePage> {
                       nominal = double.tryParse(item['nominal'].replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
                     }
 
+                    // Membaca dan mencocokkan tanggal
+                    var tanggalData = item['tanggal'] ?? item['date'] ?? item['createdAt'];
+                    DateTime? itemDate = _parseDate(tanggalData);
+                    
+                    bool isBulanIni = false;
+                    if (itemDate != null && itemDate.month == now.month && itemDate.year == now.year) {
+                      isBulanIni = true;
+                    }
+
+                    // Logika Perhitungan Terpisah
                     if (item['tipe'] == 'pemasukan') {
-                      totalPemasukan += nominal;
+                      totalSaldo += nominal; // Saldo selalu bertambah
+                      if (isBulanIni) totalPemasukanBulanIni += nominal; // Pemasukan bulanan bertambah jika cocok
                     } else {
-                      totalPengeluaran += nominal;
+                      totalSaldo -= nominal; // Saldo selalu berkurang
+                      if (isBulanIni) totalPengeluaranBulanIni += nominal; // Pengeluaran bulanan bertambah jika cocok
                     }
                   }
-                  
-                  double totalSaldo = totalPemasukan - totalPengeluaran;
 
                   return SingleChildScrollView(
                     padding: const EdgeInsets.only(bottom: 100),
@@ -123,7 +145,6 @@ class _HomePageState extends State<HomePage> {
                           color: const Color(0xFFFFFFFF),
                           padding: const EdgeInsets.only(left: 20, top: 5),
                           child: Image.asset('assets/logo_kasku.png', width: 103, height: 26, alignment: Alignment.centerLeft),
-                          
                         ),
                         const SizedBox(height: 20),
 
@@ -153,7 +174,7 @@ class _HomePageState extends State<HomePage> {
                               children: [
                                 Text("Current Balance", style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500, color: const Color(0xFFDBE2EF))),
                                 Text(
-                                  "Rp ${_formatRupiah(totalSaldo)}", 
+                                  "Rp ${_formatRupiah(totalSaldo)}", // Ini tetap menampilkan seluruh total uang
                                   style: GoogleFonts.poppins(fontSize: 30, fontWeight: FontWeight.w600, color: Colors.white),
                                 ),
                                 const Spacer(),
@@ -167,7 +188,7 @@ class _HomePageState extends State<HomePage> {
                                       children: [
                                         Text("+Pemasukan", style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500, color: const Color(0xFF4FFBDF))),
                                         Text(
-                                          "Rp +${_formatRupiah(totalPemasukan)}", 
+                                          "Rp +${_formatRupiah(totalPemasukanBulanIni)}", // Hanya menampilkan jumlah pemasukan bulan ini
                                           style: GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.w700, color: const Color(0xFF4FFBDF)),
                                         )
                                       ],
@@ -177,7 +198,7 @@ class _HomePageState extends State<HomePage> {
                                       children: [
                                         Text("-Pengeluaran", style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500, color: const Color(0xFFEF4444))),
                                         Text(
-                                          "Rp -${_formatRupiah(totalPengeluaran)}", 
+                                          "Rp -${_formatRupiah(totalPengeluaranBulanIni)}", // Hanya menampilkan jumlah pengeluaran bulan ini
                                           style: GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.w700, color: const Color(0xFFEF4444)),
                                         ),
                                       ],

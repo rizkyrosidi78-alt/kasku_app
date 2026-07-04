@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:async'; // Dibutuhkan untuk efek delay/timer
 
-// WAJIB TAMBAH: Import Firebase dan Halaman Tujuan
+// WAJIB TAMBAH: Import Firebase, Shared Preferences, dan Halaman Tujuan
 import 'package:firebase_auth/firebase_auth.dart';
-import 'login_page.dart'; // Ganti dengan onboarding_page.dart jika user belum login diarahkan ke onboarding
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'onboarding_page.dart'; // Halaman untuk pengguna baru
+import 'login_page.dart'; // Halaman login
 import 'main_navigation.dart'; // Halaman utama setelah berhasil login
 
 class SplashPage extends StatefulWidget {
@@ -19,28 +22,44 @@ class _SplashPageState extends State<SplashPage> {
     super.initState();
     _checkLoginStatus(); // Panggil fungsi pengecekan saat aplikasi baru dibuka
   }
-
-  // ==================== FUNGSI CEK STATUS LOGIN ====================
+  
+  // ==================== FUNGSI CEK STATUS LOGIN & INSTALASI ====================
   Future<void> _checkLoginStatus() async {
     // 1. Berikan jeda waktu (misal 3 detik) agar animasi/logo splash screen terlihat
     await Future.delayed(const Duration(seconds: 3));
 
-    // 2. Cek apakah ada user yang masih login di memori Firebase
+    // 2. Panggil memori lokal untuk mengecek apakah aplikasi baru pertama kali diinstal
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isFirstTime = prefs.getBool('isFirstTime') ?? true;
+
+    // 3. Cek apakah ada user yang masih login di memori Firebase (SISTEM LAMA TETAP AMAN)
     User? currentUser = FirebaseAuth.instance.currentUser;
 
     if (mounted) {
-      if (currentUser != null) {
-        // JIKA SUDAH LOGIN: Lempar langsung ke Main Navigation (Lewati Login)
+      if (isFirstTime) {
+        // JIKA BARU DIINSTAL: Matikan status first time agar besok tidak muncul lagi
+        await prefs.setBool('isFirstTime', false);
+        
+        // Arahkan ke halaman Onboarding
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const MainNavigation()),
+          MaterialPageRoute(builder: (context) => const OnboardingPage()),
         );
       } else {
-        // JIKA BELUM LOGIN: Arahkan ke halaman Login (atau Onboarding)
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginPage()), 
-        );
+        // JIKA BUKAN INSTALASI PERTAMA: Jalankan sistem login otomatis
+        if (currentUser != null) {
+          // JIKA SUDAH LOGIN: Lempar langsung ke Main Navigation (Lewati Login)
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MainNavigation()),
+          );
+        } else {
+          // JIKA BELUM LOGIN: Arahkan ke halaman Login
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginPage()), 
+          );
+        }
       }
     }
   }
@@ -55,7 +74,7 @@ class _SplashPageState extends State<SplashPage> {
           children: [
             // Logo Aplikasimu
             Image.asset(
-              'assets/logo.png',
+              'assets/logo.png', // Pastikan nama file logonya sudah benar
               width: 200, 
             ),
             const SizedBox(height: 20),

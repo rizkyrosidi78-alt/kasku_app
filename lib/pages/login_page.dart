@@ -13,7 +13,6 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  
   // Variabel untuk loading agar user tahu proses sedang berjalan
   bool _isLoading = false;
 
@@ -23,7 +22,6 @@ class _LoginPageState extends State<LoginPage> {
     _passwordController.dispose();
     super.dispose();
   }
-
   // 3. Fungsi Login Firebase
   Future<void> _prosesLogin() async {
     String email = _emailController.text.trim();
@@ -35,18 +33,15 @@ class _LoginPageState extends State<LoginPage> {
       );
       return;
     }
-
     setState(() {
       _isLoading = true;
     });
-
     try {
       // Menghubungkan ke Firebase Authentication
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-
       // Jika berhasil, pindah ke Home
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/home');
@@ -85,7 +80,6 @@ class _LoginPageState extends State<LoginPage> {
                 fit: BoxFit.contain,
               ),
               const SizedBox(height: 70),
-
               // Form Login
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 13.0),
@@ -135,7 +129,6 @@ class _LoginPageState extends State<LoginPage> {
                               decoration: _inputDecoration("Masukkan password"),
                             ),
                             const SizedBox(height: 25),
-                            
                             // Tombol Masuk
                             SizedBox(
                               width: double.infinity,
@@ -146,7 +139,7 @@ class _LoginPageState extends State<LoginPage> {
                                   backgroundColor: const Color(0xFF112D4E),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                                 ),
-                                child: _isLoading 
+                                child: _isLoading
                                     ? const CircularProgressIndicator(color: Colors.white)
                                     : Text("Masuk", style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white)),
                               ),
@@ -158,7 +151,6 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-              
               const SizedBox(height: 20),
               // Register Link
               RichText(
@@ -188,7 +180,6 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-
   // Dekorasi Input agar rapi
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
@@ -201,4 +192,5 @@ class _LoginPageState extends State<LoginPage> {
       focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: const BorderSide(color: Color(0xFF112D4E), width: 2)),
     );
   }
-}
+} 
+

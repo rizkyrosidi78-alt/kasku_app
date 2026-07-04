@@ -85,7 +85,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
               width: double.infinity,
               height: 41,
               color: const Color(0xFFFFFFFF),
-              padding: const EdgeInsets.only(left: 13, top: 5),
+              padding: const EdgeInsets.only(left: 20, top: 5),
               child: Image.asset('assets/logo_kasku.png', width: 103, height: 26, alignment: Alignment.centerLeft),
             ),
             const SizedBox(height: 20),
